@@ -54,3 +54,20 @@ with open(csv_file1, newline='', encoding='utf-8') as f:
         except Exception as e:
             print(f"Błąd przy wstawianiu do Clean_stations: {e}")
             transaction.rollback()
+
+with open(csv_file2, newline='', encoding='utf-8') as f:
+    reader = csv.DictReader(f)
+    records = []
+    for row in reader:
+        records.append({
+            'station': row['station'],
+            'date': datetime.strptime(row['date'], '%Y-%m-%d') if row['date'] else None,
+            'precip': float(row['precip']) if row['precip'] else None,
+            'tobs': int(row['tobs']) if row['tobs'] else None
+        })
+    with connection.begin() as transaction:
+        try:
+            connection.execute(insert(Clean_measure).prefix_with("OR IGNORE"), records)
+        except Exception as e:
+            print(f"Błąd przy wstawianiu do Clean_measure: {e}")
+            transaction.rollback()
