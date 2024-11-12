@@ -34,3 +34,23 @@ Clean_measure = Table(
 )
 
 meta.create_all(engine)
+
+with open(csv_file1, newline='', encoding='utf-8') as f:
+    reader = csv.DictReader(f)
+    records = []
+    for row in reader:
+        records.append({
+            'station': row['station'],
+            'latitude': float(row['latitude']) if row['latitude'] else None,
+            'longitude': float(row['longitude']) if row['longitude'] else None,
+            'elevation': float(row['elevation']) if row['elevation'] else None,
+            'name': row['name'],
+            'country': row['country'],
+            'state': row['state']
+        })
+    with connection.begin() as transaction:
+        try:
+            connection.execute(insert(Clean_stations).prefix_with("OR IGNORE"), records)
+        except Exception as e:
+            print(f"Błąd przy wstawianiu do Clean_stations: {e}")
+            transaction.rollback()
