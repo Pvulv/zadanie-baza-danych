@@ -71,3 +71,9 @@ with open(csv_file2, newline='', encoding='utf-8') as f:
         except Exception as e:
             print(f"Błąd przy wstawianiu do Clean_measure: {e}")
             transaction.rollback()
+
+result = connection.execute("SELECT * FROM Clean_stations LIMIT 5").fetchall()
+for row in result:
+    print(row)
+
+connection.close()
